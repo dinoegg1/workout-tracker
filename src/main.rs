@@ -1,9 +1,12 @@
+use std::env;
+
+use anyhow::Result;
 use axum::{
     Json, Router, debug_handler,
     routing::{get, post},
 };
-use chrono::{DateTime, Utc};
 use serde::Deserialize;
+use sqlx::MySqlPool;
 
 #[derive(Deserialize)]
 struct Workout {
@@ -13,17 +16,19 @@ struct Workout {
 }
 
 #[tokio::main]
-#[debug_handler]
-async fn main() {
+async fn main() -> Result<(), anyhow::Error> {
     let app = Router::new().route("/workout/v1", post(add_workout).get(previous_workout));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:4985").await.unwrap();
+    let pool = MySqlPool::connect(&env::var("DATABASE_URL")?)
+        .await
+        .unwrap();
+    axum::serve(listener, app.with_state(pool)).await.unwrap();
+    Ok(())
 }
 
 #[debug_handler]
-async fn add_workout(Json(workout): Json<Workout>) -> &'static str {
+async fn add_workout(pool: MySqlPool, Json(workout): Json<Workout>) {
     let workout = workout;
-
-    return "workout added";
 }
 
 #[debug_handler]
