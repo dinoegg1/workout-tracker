@@ -1,4 +1,4 @@
-import datetime
+import datetime  # noqa: I001
 
 import pydantic
 import requests
@@ -19,4 +19,9 @@ workout_date = st.date_input("Workout Date")
 
 if st.button("Save") and workout_type is not None and workout_amount is not None and workout_date is not None:
     workout = Workout(workout_type=workout_type, amount=workout_amount, date=workout_date)
-    requests.post(f"{get_request_url}/workout/v1", json.dumps(Workout,default=str))
+    try:
+        response = requests.post(f"{get_request_url}/workout/v1", json.dumps(workout,default=str))
+        st.write("Response Saved!")
+        st.write(response.json())
+    except requests.exceptions.RequestException as e:
+        st.error(f"{e}")

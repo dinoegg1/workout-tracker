@@ -1,4 +1,4 @@
-use std::{default, env};
+use std::env;
 
 use anyhow::Result;
 use axum::{
@@ -16,7 +16,7 @@ use sqlx::MySqlPool;
 pub struct Workout {
     workout_type: String,
     amount: i32,
-    date: chrono::NaiveDate,
+    date: NaiveDate,
 }
 
 #[derive(Debug)]
@@ -36,6 +36,7 @@ impl From<sqlx::Error> for AppError {
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
+    dotenvy::dotenv().ok();
     let app = Router::new()
         .route("/workout/v1", post(add_workout).get(previous_workout))
         .route("/testing/v1", post(testing));
@@ -49,10 +50,13 @@ async fn main() -> Result<(), anyhow::Error> {
 }
 
 #[debug_handler]
-async fn add_workout(State(pool): State<MySqlPool>, Json(workout): Json<Workout>) -> String {
-    let _workout = workout;
+async fn add_workout(
+    State(pool): State<MySqlPool>,
+    Json(workout): Json<Workout>,
+) -> Result<(StatusCode, Json<Workout>), AppError> {
+    let workout = workout;
     let _pool = pool;
-    return "Success".to_string();
+    Ok((StatusCode::OK, Json(workout)))
 }
 
 #[debug_handler]
