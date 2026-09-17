@@ -9,7 +9,7 @@ use axum::{
     routing::{get, post},
 };
 use serde::{Deserialize, Serialize};
-use sqlx::{MySqlPool, mysql::MySqlQueryResult};
+use sqlx::MySqlPool;
 
 #[derive(Deserialize, Clone, Debug, PartialEq, Default, Serialize)]
 pub struct Workout {
