@@ -1,2 +1,3 @@
 /target
+.streamlit/secrets.toml
 .env

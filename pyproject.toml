@@ -8,10 +8,12 @@ authors = [
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "dotenv>=0.9.9",
     "httpx>=0.28.1",
     "jupyterlab>=4.6.3",
     "matplotlib>=3.11.2",
     "polars>=1.44.2",
+    "pydantic>=2.13.5",
     "ruff>=0.16.7",
     "streamlit>=1.64.0",
     "ty>=0.0.81",

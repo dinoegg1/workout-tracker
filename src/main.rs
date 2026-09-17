@@ -1,4 +1,4 @@
-use std::env;
+use std::{default, env};
 
 use anyhow::Result;
 use axum::{
@@ -6,8 +6,9 @@ use axum::{
     extract::State,
     http::StatusCode,
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::post,
 };
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::MySqlPool;
 
@@ -48,14 +49,14 @@ async fn main() -> Result<(), anyhow::Error> {
 }
 
 #[debug_handler]
-async fn add_workout(State(pool): State<MySqlPool>, Json(workout): Json<Workout>) {
-    let workout = workout;
-    let pool = pool;
+async fn add_workout(State(pool): State<MySqlPool>, Json(workout): Json<Workout>) -> String {
+    let _workout = workout;
+    let _pool = pool;
+    return "Success".to_string();
 }
 
 #[debug_handler]
 async fn previous_workout() {}
-
 #[debug_handler]
 async fn testing(State(pool): State<MySqlPool>) -> Result<(StatusCode, Json<Workout>), AppError> {
     let workout = Workout {
