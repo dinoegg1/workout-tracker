@@ -55,7 +55,19 @@ async fn add_workout(
     Json(workout): Json<Workout>,
 ) -> Result<(StatusCode, Json<Workout>), AppError> {
     let workout = workout;
-    let _pool = pool;
+    let pool = pool;
+    let _add_workout = sqlx::query!(
+        r#"
+        INSERT INTO workouts (workout_type, amount, date)
+        VALUES (?, ?, ?)
+        "#,
+        workout.workout_type,
+        workout.amount,
+        workout.date,
+    )
+    .execute(&pool)
+    .await
+    .map_err(|e| sqlx::Error::from(e))?;
     Ok((StatusCode::OK, Json(workout)))
 }
 
@@ -69,7 +81,7 @@ async fn testing(State(pool): State<MySqlPool>) -> Result<(StatusCode, Json<Work
         date: chrono::NaiveDate::from_ymd_opt(2026, 9, 15).unwrap(),
     };
     let pool = pool;
-    let add_workout = sqlx::query!(
+    let _add_workout = sqlx::query!(
         r#"
         INSERT INTO workouts (workout_type, amount, date)
         VALUES (?, ?, ?)

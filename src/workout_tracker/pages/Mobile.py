@@ -20,8 +20,23 @@ workout_date = st.date_input("Workout Date")
 if st.button("Save") and workout_type is not None and workout_amount is not None and workout_date is not None:
     workout = Workout(workout_type=workout_type, amount=workout_amount, date=workout_date)
     try:
-        response = requests.post(f"{get_request_url}/workout/v1", json.dumps(workout,default=str))
-        st.write("Response Saved!")
-        st.write(response.json())
+        # Convert Pydantic model to dict and ensure date is a string for JSON serialization
+        workout_data = workout.dict() if hasattr(workout, 'dict') else workout.model_dump()
+        workout_data['date'] = workout_data['date'].isoformat()
+
+        # Using the 'json=' parameter automatically sets Content-Type to application/json
+        response = requests.post(f"{get_request_url}/workout/v1", json=workout_data)
+
+        if response.status_code == 200:
+            st.write("Response Saved!")
+            st.write(response.json())
+        else:
+            st.error(f"Failed to save. Status: {response.status_code}")
+            st.write(f"Server said: {response.text}")
+
     except requests.exceptions.RequestException as e:
         st.error(f"{e}")
+        if 'response' in locals():
+            st.write(f"Server said: {response.text}")
+            st.write(f"Response status: {response.status_code}")
+            st.write(f"Response headers: {response.headers}")
