@@ -1,10 +1,9 @@
-import datetime  # noqa: I001
+import datetime
 
 import pydantic
 import requests
 import streamlit as st
 from streamlit import secrets
-import json
 
 get_request_url = secrets.REQUEST_URL
 
@@ -20,13 +19,9 @@ workout_date = st.date_input("Workout Date")
 if st.button("Save") and workout_type is not None and workout_amount is not None and workout_date is not None:
     workout = Workout(workout_type=workout_type, amount=workout_amount, date=workout_date)
     try:
-        # Convert Pydantic model to dict and ensure date is a string for JSON serialization
-        workout_data = workout.dict() if hasattr(workout, 'dict') else workout.model_dump()
+        workout_data = workout.model_dump()
         workout_data['date'] = workout_data['date'].isoformat()
-
-        # Using the 'json=' parameter automatically sets Content-Type to application/json
         response = requests.post(f"{get_request_url}/workout/v1", json=workout_data)
-
         if response.status_code == 200:
             st.write("Response Saved!")
             st.write(response.json())

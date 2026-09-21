@@ -72,7 +72,26 @@ async fn add_workout(
 }
 
 #[debug_handler]
-async fn previous_workout() {}
+async fn previous_workout(
+    State(pool): State<MySqlPool>,
+    Json(workout_type): Json<String>,
+) -> Result<Json<Vec<Workout>>, AppError> {
+    if workout_type.is_empty() {
+        let workouts = sqlx::query_as!(Workout, "SELECT workout_type, amount, date FROM workouts")
+            .fetch_all(&pool)
+            .await?;
+        return Ok(Json(workouts));
+    }
+    let workouts = sqlx::query_as!(
+        Workout,
+        r#"SELECT workout_type, amount, date FROM workouts WHERE workout_type = ?"#,
+        workout_type
+    )
+    .fetch_all(&pool)
+    .await?;
+    Ok(Json(workouts))
+}
+
 #[debug_handler]
 async fn testing(State(pool): State<MySqlPool>) -> Result<(StatusCode, Json<Workout>), AppError> {
     let workout = Workout {
